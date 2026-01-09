@@ -4,10 +4,8 @@ import google.generativeai as genai
 from langchain_community.tools import DuckDuckGoSearchRun
 import time
 
-# --- CONFIGURATION ---
 st.set_page_config(page_title="Clarus | The Risk Agent", page_icon="⚖️", layout="wide")
 
-# --- SIDEBAR ---
 st.sidebar.title("Clarus ⚖️")
 st.sidebar.markdown("**Intelligent Audit & Compliance Agent**")
 api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
@@ -15,7 +13,6 @@ uploaded_file = st.sidebar.file_uploader("Upload Legal Document (PDF)", type="pd
 st.sidebar.markdown("---")
 st.sidebar.caption("Powered by Gemini Pro & DuckDuckGo")
 
-# --- TOOLS ---
 def extract_text_from_pdf(pdf_file):
     pdf_reader = PdfReader(pdf_file)
     text = ""
@@ -33,7 +30,6 @@ def web_background_check(entity_name):
     except:
         return "No public red flags found or connection timed out."
 
-# --- MAIN INTERFACE ---
 st.title("Clarus 2.0")
 st.subheader("Autonomous Risk & Background Auditor")
 
@@ -46,15 +42,13 @@ if uploaded_file is not None and api_key:
              st.stop()
         st.success(f"Document ingested. Length: {len(raw_text)} chars.")
 
-    # 2. CONFIGURE BRAIN
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-1.5-flash')
 
-    # 3. INTERROGATE
     query = st.text_input("Interrogate the Document:", placeholder="Ex: Analyze the indemnity clause")
 
     if query:
-        # STEP A: ANALYZE CONTRACT
+        
         with st.spinner("Analyzing legal text..."):
             system_prompt = f"""
             You are Clarus, a Senior Auditor. 
@@ -70,14 +64,12 @@ if uploaded_file is not None and api_key:
             response = model.generate_content(system_prompt)
             full_response = response.text
             
-            # Simple parsing to separate Analysis from Entities
             if "ENTITIES:" in full_response:
                 analysis_part, entities_part = full_response.split("ENTITIES:")
             else:
                 analysis_part = full_response
                 entities_part = "None"
 
-        # STEP B: THE DETECTIVE WORK (Live Search)
         st.markdown("### 📝 Contract Analysis")
         st.write(analysis_part.replace("ANALYSIS:", "").strip())
         
@@ -97,4 +89,5 @@ if uploaded_file is not None and api_key:
             st.success("Investigation Complete.")
             
 elif not api_key:
+
     st.info("👈 Enter API Key to activate Clarus.")
