@@ -6,7 +6,6 @@ def create_toxic_pdf():
     c.drawString(100, 780, "BETWEEN:")
     c.drawString(100, 760, "Party A: VIPS Consulting Group")
     c.drawString(100, 740, "AND")
-    # This is the trigger. Clarus will search this name and find the scandal.
     c.drawString(100, 720, "Party B: FTX Trading Ltd (Sam Bankman-Fried)") 
     
     c.drawString(100, 680, "1. INDEMNITY")
@@ -18,4 +17,5 @@ def create_toxic_pdf():
     print("SUCCESS: 'toxic_contract.pdf' created.")
 
 if __name__ == "__main__":
+
     create_toxic_pdf()
