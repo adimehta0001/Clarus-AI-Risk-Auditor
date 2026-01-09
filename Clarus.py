@@ -3,26 +3,18 @@ from PyPDF2 import PdfReader
 import google.generativeai as genai
 from langchain_community.tools import DuckDuckGoSearchRun
 import time
-
-# --- CONFIGURATION ---
 st.set_page_config(page_title="Clarus | The Risk Agent", page_icon="⚖️", layout="wide")
-
-# --- CSS FOR "HARVEY" AESTHETIC ---
 st.markdown("""
     <style>
     .stAlert { border-radius: 10px; }
     .report-text { font-family: 'Courier New', monospace; font-size: 14px; }
     </style>
     """, unsafe_allow_html=True)
-
-# --- SIDEBAR ---
 st.sidebar.header("Clarus ⚖️")
 st.sidebar.caption("Autonomous Due Diligence Agent")
 api_key = st.sidebar.text_input("Gemini API Key", type="password")
 uploaded_file = st.sidebar.file_uploader("Upload Contract (PDF)", type="pdf")
 st.sidebar.markdown("---")
-
-# --- LOGIC ENGINE ---
 def extract_text_from_pdf(pdf_file):
     pdf_reader = PdfReader(pdf_file)
     text = ""
@@ -34,17 +26,15 @@ def search_web(query):
     """Deep searches the web for red flags."""
     search = DuckDuckGoSearchRun()
     try:
-        # We append keywords to find specific dirt
         return search.run(f"{query} fraud lawsuit bankruptcy scandal settlement")
     except:
         return "Search connection timed out."
 
-# --- MAIN APP ---
 st.title("Clarus 3.0")
 st.markdown("### 🕵️‍♂️ Context-Aware Risk Auditor")
 
 if uploaded_file and api_key:
-    # 1. INGEST
+
     with st.spinner("Reading legal document..."):
         raw_text = extract_text_from_pdf(uploaded_file)
         st.success(f"Document Loaded. Length: {len(raw_text)} chars")
@@ -53,8 +43,7 @@ if uploaded_file and api_key:
     model = genai.GenerativeModel('models/gemini-flash-latest')
 
     if st.button("Run Full Audit"):
-        
-        # --- PHASE 1: EXTRACT ENTITIES (The "List" Step) ---
+
         with st.status("🔍 Extracting Entities...", expanded=True) as status:
             extraction_prompt = f"""
             Identify the legal entities (Companies/Parties) in this text. 
@@ -67,7 +56,6 @@ if uploaded_file and api_key:
             st.write(f"**Identified Targets:** {entities}")
             status.update(label="✅ Entities Extracted", state="complete")
 
-        # --- PHASE 2: THE DETECTIVE (Live Web Search) ---
         web_evidence = {}
         with st.status("🌍 Running Background Checks...", expanded=True) as status:
             progress_bar = st.progress(0)
@@ -81,7 +69,6 @@ if uploaded_file and api_key:
             
             status.update(label="✅ Background Check Complete", state="complete")
 
-        # --- PHASE 3: THE FINAL VERDICT (Synthesis) ---
         st.divider()
         st.subheader("⚖️ Final Risk Report")
         
@@ -115,4 +102,5 @@ if uploaded_file and api_key:
                 st.success("✅ No Critical External Red Flags")
 
 elif not api_key:
+
     st.info("Enter API Key to initialize.")
